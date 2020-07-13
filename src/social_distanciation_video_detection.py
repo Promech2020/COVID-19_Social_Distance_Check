@@ -1,5 +1,5 @@
 from bird_view_transfo_functions import compute_perspective_transform,compute_point_perspective_transformation
-from helping_functions import image_resize, create_blank
+from helping_functions import image_resize, create_blank, combine_image
 from tf_model_object_detection import Model 
 from colors import bcolors
 from mutagen.mp3 import MP3
@@ -152,7 +152,7 @@ print(bcolors.OKGREEN +"Done : [ Model loaded and initialized ] ..."+bcolors.END
 #     print(" - {} [{}]".format(video_name,index))
 video_name = input("Enter the exact name of the video (including .mp4 or else) or 0 for webcam : ")
 if video_name == "":
-	video_path="../video/PETS2009.avi" 
+	video_path="../video/Demo1.mp4" 
 elif video_name == "0":
 	video_path = int(video_name)
 else :
@@ -352,9 +352,9 @@ while True:
 						# 		x,y = point
 						# 		cv2.circle(bird_view_img, (x,y), BIG_CIRCLE, COLOR_GREEN, 2)
 						# 		cv2.circle(bird_view_img, (x,y), SMALL_CIRCLE, COLOR_GREEN, -1)
-	print(distance_between_pairs)
-	print(timer_for_each_pairs)
-	print("\n")
+	# print(distance_between_pairs)
+	# print(timer_for_each_pairs)
+	# print("\n")
 
 	if len(distance_between_pairs)>0:
 		threading1 = []
@@ -393,23 +393,33 @@ while True:
 
 	# Draw the green rectangle to delimitate the detection zone
 	draw_rectangle(corner_points)
+	h,w,c = frame.shape
 	# Show both images	
-	# bird_view = image_resize(bird_view_img, width=200)
-	cv2.imshow("Bird view", bird_view_img)
-	cv2.imshow("Original picture", frame)
+	bird_view = image_resize(bird_view_img, width=int(w/4))
+	# cv2.imshow("Bird view", bird_view_img)
+	# cv2.imshow("Original picture", frame)
+	##Combine bird_view_img and frame in one.
+	final_frame = combine_image(frame, bird_view)
+	cv2.imshow("Combined View", final_frame)
 
 
 	key = cv2.waitKey(1) & 0xFF
 
 	# Write the both outputs video to a local folders
-	if output_video_1 is None and output_video_2 is None:
+	# if output_video_1 is None and output_video_2 is None:
+	# 	fourcc1 = cv2.VideoWriter_fourcc(*"MJPG")
+	# 	output_video_1 = cv2.VideoWriter("../output/video.avi", fourcc1, 25,(frame.shape[1], frame.shape[0]), True)
+	# 	fourcc2 = cv2.VideoWriter_fourcc(*"MJPG")
+	# 	output_video_2 = cv2.VideoWriter("../output/bird_view.avi", fourcc2, 25,(bird_view_img.shape[1], bird_view_img.shape[0]), True)
+	# elif output_video_1 is not None and output_video_2 is not None:
+	# 	output_video_1.write(frame)
+	# 	output_video_2.write(bird_view_img)
+
+	if output_video_1 is None:
 		fourcc1 = cv2.VideoWriter_fourcc(*"MJPG")
-		output_video_1 = cv2.VideoWriter("../output/video.avi", fourcc1, 25,(frame.shape[1], frame.shape[0]), True)
-		fourcc2 = cv2.VideoWriter_fourcc(*"MJPG")
-		output_video_2 = cv2.VideoWriter("../output/bird_view.avi", fourcc2, 25,(bird_view_img.shape[1], bird_view_img.shape[0]), True)
-	elif output_video_1 is not None and output_video_2 is not None:
-		output_video_1.write(frame)
-		output_video_2.write(bird_view_img)
+		output_video_1 = cv2.VideoWriter("../output/video.avi", fourcc1, 25,(final_frame.shape[1], final_frame.shape[0]), True)
+	elif output_video_1 is not None:
+		output_video_1.write(final_frame)
 
 	# Break the loop
 	if key == ord("q"):

@@ -12,7 +12,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "f:/Gopal/SocialDistancing/covid-social-distancing-detection-master/src"
+            "cwd": "f:/Gopal/SocialDistancing/COVID-19_Social_Distance_Check/src"
         }
     ]
 }
