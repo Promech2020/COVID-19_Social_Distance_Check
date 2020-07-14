@@ -331,10 +331,9 @@ while True:
 							#Creating new dictionary containing distances between pairs
 							distance_between_pairs[f"pairs{i}"] = distance_between_pair
 							#Checking and creating timer for pairs from distance_between_pairs
-							if f"pairs{i}" in timer_for_each_pairs.keys():
-								continue
-							else:
+							if f"pairs{i}" not in timer_for_each_pairs.keys():
 								timer_for_each_pairs[f"pairs{i}"] = 0
+								
 						if distance_between_pair < int(distance_minimum):
 							# Change the colors of the points that are too close from each other to red
 							if not (pair[0][0] > width or pair[0][0] < 0 or pair[0][1] > height+200  or pair[0][1] < 0 or pair[1][0] > width or pair[1][0] < 0 or pair[1][1] > height+200  or pair[1][1] < 0):
