@@ -1,4 +1,4 @@
-from bird_view_transfo_functions import compute_perspective_transform,compute_point_perspective_transformation
+# from bird_view_transfo_functions import compute_perspective_transform,compute_point_perspective_transformation
 from helping_functions import image_resize, create_blank, combine_image
 from tf_model_object_detection import Model 
 from colors import bcolors
@@ -157,7 +157,6 @@ output_video_1,output_video_2 = None,None
 
 loop_count = 0
 frame_count = 0
-human_detected = False
 # Loop until the end of the video stream
 while True:	
 	# Load the frame
@@ -175,9 +174,10 @@ while True:
 		(boxes, scores, classes) =  model.predict(frame)
 
 		if len(boxes)>0:
+			
 			# Get the human detected in the frame and return the 2 points to build the bounding box  
 			array_boxes_detected = get_human_box_detection(boxes,scores[0].tolist(),classes[0].tolist(),frame.shape[0],frame.shape[1])
-			print(f"{len(array_boxes_detected)} human/s detected in frame {frame_count}.")
+
 			if len(array_boxes_detected)>0:
 				# Both of our lists that will contain the centroïds coordonates and the ground points
 				array_centroids = get_centroids(array_boxes_detected)
@@ -218,6 +218,13 @@ while True:
 					for i,items in enumerate(boxes_to_make_red):
 						cv2.rectangle(frame,(boxes_to_make_red[i][1],boxes_to_make_red[i][0]),(boxes_to_make_red[i][3],boxes_to_make_red[i][2]),COLOR_RED,2)
 
+					box_and_centroid.clear()
+					close_pairs.clear()
+					flat_list.clear()
+					common_close_pairs.clear()
+					boxes_to_make_red.clear()
+		else:
+			print(f"Something is wrong in frame {frame_count}.")
 	# print(distance_between_pairs)
 	# print(timer_for_each_pairs)
 	# print("\n")
