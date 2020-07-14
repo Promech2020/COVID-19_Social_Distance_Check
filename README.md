@@ -45,7 +45,8 @@ pip install mutagen
 
 # Download Tensorflow models
 
-In my project I used the faster_rcnn_inception_v2_coco model. I could not upload it to github because it is to heavy. You can download this model and several others from the [Tensorflow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md). 
+In my project I used the faster_rcnn_inception_v2_coco model. 
+You can also download this model and several others from the [Tensorflow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md). 
 Just download all the models you want to try out, put them in the models folder and unzip them. For example :
 ```bash
 tar -xvzf faster_rcnn_inception_v2_coco_2018_01_28.tar.gz
