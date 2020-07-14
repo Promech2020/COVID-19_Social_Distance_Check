@@ -66,4 +66,8 @@ You will be asked as inputs :
 - Frame per second of your video/cctv footage.
 
 # Outputs
-Video output (combined of normal frame and bird eye view) will be stored in the output file.
+Video output will be stored in the output file.
+
+#Upcoming
+
+GUI to get user input.
