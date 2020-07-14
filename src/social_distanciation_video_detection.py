@@ -70,34 +70,6 @@ def get_points_from_box(box):
 	return (center_x,center_y)
 
 
-# def change_color_to_red_on_topview(pair):
-# 	"""
-# 	Draw red circles for the designated pair of points 
-# 	"""
-# 	cv2.circle(bird_view_img, (pair[0][0],pair[0][1]), BIG_CIRCLE, COLOR_RED, 2)
-# 	cv2.circle(bird_view_img, (pair[0][0],pair[0][1]), SMALL_CIRCLE, COLOR_RED, -1)
-# 	cv2.circle(bird_view_img, (pair[1][0],pair[1][1]), BIG_CIRCLE, COLOR_RED, 2)
-# 	cv2.circle(bird_view_img, (pair[1][0],pair[1][1]), SMALL_CIRCLE, COLOR_RED, -1)
-
-# def change_color_to_green_on_topview(pair):
-# 	"""
-# 	Draw red circles for the designated pair of points 
-# 	"""
-# 	cv2.circle(bird_view_img, (pair[0][0],pair[0][1]), BIG_CIRCLE, COLOR_GREEN, 2)
-# 	cv2.circle(bird_view_img, (pair[0][0],pair[0][1]), SMALL_CIRCLE, COLOR_GREEN, -1)
-# 	cv2.circle(bird_view_img, (pair[1][0],pair[1][1]), BIG_CIRCLE, COLOR_GREEN, 2)
-# 	cv2.circle(bird_view_img, (pair[1][0],pair[1][1]), SMALL_CIRCLE, COLOR_GREEN, -1)
-
-# def draw_rectangle(corner_points):
-# 	"""
-# 	Draw rectangle box over the delimitation area.
-# 	"""
-# 	cv2.line(frame, (corner_points[0][0], corner_points[0][1]), (corner_points[1][0], corner_points[1][1]), COLOR_BLUE, thickness=1)
-# 	cv2.line(frame, (corner_points[1][0], corner_points[1][1]), (corner_points[3][0], corner_points[3][1]), COLOR_BLUE, thickness=1)
-# 	cv2.line(frame, (corner_points[0][0], corner_points[0][1]), (corner_points[2][0], corner_points[2][1]), COLOR_BLUE, thickness=1)
-# 	cv2.line(frame, (corner_points[3][0], corner_points[3][1]), (corner_points[2][0], corner_points[2][1]), COLOR_BLUE, thickness=1)
-
-
 ######################################### 
 #		     Select the model 			#
 #########################################
@@ -184,6 +156,8 @@ vs = cv2.VideoCapture(video_path)
 output_video_1,output_video_2 = None,None
 
 loop_count = 0
+frame_count = 0
+human_detected = False
 # Loop until the end of the video stream
 while True:	
 	# Load the frame
@@ -192,6 +166,7 @@ while True:
 	if not frame_exists:
 		break
 	else:
+		frame_count += 1
 		# Resize the image to the correct size
 		frame = image_resize(frame, width = 600)
 		height, width, channels = frame.shape
@@ -200,42 +175,15 @@ while True:
 		(boxes, scores, classes) =  model.predict(frame)
 
 		if len(boxes)>0:
-			box_and_centroid = dict()
 			# Get the human detected in the frame and return the 2 points to build the bounding box  
 			array_boxes_detected = get_human_box_detection(boxes,scores[0].tolist(),classes[0].tolist(),frame.shape[0],frame.shape[1])
 			if len(array_boxes_detected)>0:
 				# Both of our lists that will contain the centroïds coordonates and the ground points
 				array_centroids = get_centroids(array_boxes_detected)
-
-
-				#Only for checking
-				# for i in array_centroids:
-				# 	cv2.circle(frame, (i[0],i[1]), SMALL_CIRCLE, COLOR_GREEN, 5)
-				# for j in array_groundpoints:
-				# 	cv2.circle(frame,(j[0],j[1]), SMALL_CIRCLE, COLOR_RED, 5)
-				# cv2.imshow("Check", frame)
-				# cv2.waitKey(10)
-				# Use the transform matrix to get the transformed coordonates
-				# transformed_downoids = compute_point_perspective_transformation(matrix,array_groundpoints)
-				
-				# # Show every point on the top view image 
-				# for point in transformed_downoids:
-				# 	x,y = point
-				# 	cv2.circle(bird_view_img, (x,y), BIG_CIRCLE, COLOR_GREEN, 2)
-				# 	cv2.circle(bird_view_img, (x,y), SMALL_CIRCLE, COLOR_GREEN, -1)
+				box_and_centroid = list(zip(array_centroids,array_boxes_detected))
 
 				# Check if 2 or more people have been detected (otherwise no need to detect)
 				if len(array_centroids) >= 2:
-					# for index,centroids in enumerate(array_centroids):
-					# 	if not (centroids[0] > width or centroids[0] < 0 or centroids[1] > height+200 or centroids[1] < 0 ):
-					# 		cv2.rectangle(frame,(array_boxes_detected[index][1],array_boxes_detected[index][0]),(array_boxes_detected[index][3],array_boxes_detected[index][2]),COLOR_GREEN,2)
-							# cv2.circle(bird_view_img, (downoid[0],downoid[1]), BIG_CIRCLE, COLOR_GREEN, 2)
-							# cv2.circle(bird_view_img, (downoid[0],downoid[1]), SMALL_CIRCLE, COLOR_GREEN, -1)
-							# cv2.imshow("FramebyFrame", frame)
-							# cv2.waitKey(10)
-					# Iterate over every possible 2 by 2 between the points combinations 
-					# list_indexes = list(itertools.combinations(range(len(array_centroids)), 2))
-					# print(list_indexes)
 					close_pairs = []
 					for i,pair in enumerate(itertools.combinations(array_centroids, r=2)):
 					# for i,pair in enumerate(itertools.combinations(array_centroids, r=2)):
@@ -252,31 +200,24 @@ while True:
 							else:
 								timer_for_each_pairs[f"pairs{i}"] = 0
 
-						# index_pt1 = list_indexes[i][0]
-						# index_pt2 = list_indexes[i][1]
 						if distance_between_pair < int(distance_minimum):
 							close_pairs.append(pair)
-							for i in array_centroids:
-								box_and_centroid[array_centroids[i]] = array_boxes_detected[i]
-							# Change the colors of the points that are too close from each other to red
-							# if not (pair[0][0] > width or pair[0][0] < 0 or pair[0][1] > height+200  or pair[0][1] < 0 or pair[1][0] > width or pair[1][0] < 0 or pair[1][1] > height+200  or pair[1][1] < 0):
-								# Get the equivalent indexes of these points in the original frame and change the color to red
-							# cv2.rectangle(frame,(array_boxes_detected[index_pt1][1],array_boxes_detected[index_pt1][0]),(array_boxes_detected[index_pt1][3],array_boxes_detected[index_pt1][2]),COLOR_RED,2)
-							# cv2.rectangle(frame,(array_boxes_detected[index_pt2][1],array_boxes_detected[index_pt2][0]),(array_boxes_detected[index_pt2][3],array_boxes_detected[index_pt2][2]),COLOR_RED,2)
-						# else:
-						# 	cv2.rectangle(frame,(array_boxes_detected[index_pt1][1],array_boxes_detected[index_pt1][0]),(array_boxes_detected[index_pt1][3],array_boxes_detected[index_pt1][2]),COLOR_GREEN,2)
-						# 	cv2.rectangle(frame,(array_boxes_detected[index_pt2][1],array_boxes_detected[index_pt2][0]),(array_boxes_detected[index_pt2][3],array_boxes_detected[index_pt2][2]),COLOR_GREEN,2)
+					
 					flat_list = []
 					for sublist in close_pairs:
 						for item in sublist:
 							flat_list.append(item)
-					common_close_pairs = list(set(flat_list))	
-					for each in common_close_pairs:
-						cv2.rectangle(frame,(box_and_centroid.keys[0],box_and_centroid.keys[1]),(box_and_centroid.keys[2],box_and_centroid.keys[3]),COLOR_GREEN,2)
+					common_close_pairs = list(set(flat_list))
+					# print(common_close_pairs)	
+					boxes_to_make_red = []
+					for ccp in common_close_pairs:
+						for b_and_c in box_and_centroid:
+							if ccp == b_and_c[0]:
+								boxes_to_make_red.append(b_and_c[1]) 
+					print(boxes_to_make_red)
+					for i,items in enumerate(boxes_to_make_red):
+						cv2.rectangle(frame,(boxes_to_make_red[i][1],boxes_to_make_red[i][0]),(boxes_to_make_red[i][3],boxes_to_make_red[i][2]),COLOR_RED,2)
 
-
-				# else:
-				# 	cv2.rectangle(frame,(array_boxes_detected[0][1],array_boxes_detected[0][0]),(array_boxes_detected[1][0],array_boxes_detected[1][1]),COLOR_GREEN,2)
 	# print(distance_between_pairs)
 	# print(timer_for_each_pairs)
 	# print("\n")
