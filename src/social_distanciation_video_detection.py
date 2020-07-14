@@ -85,7 +85,7 @@ print(bcolors.OKGREEN +"Done : [ Model loaded and initialized ] ..."+bcolors.END
 
 video_name = input("Enter the exact name of the video (including .mp4 or else) or 0 for webcam : ")
 if video_name == "":
-	video_path="../video/Demo1.mp4" 
+	video_path="../video/PETS2009.avi" 
 elif video_name == "0":
 	video_path = int(video_name)
 else :
@@ -177,6 +177,7 @@ while True:
 		if len(boxes)>0:
 			# Get the human detected in the frame and return the 2 points to build the bounding box  
 			array_boxes_detected = get_human_box_detection(boxes,scores[0].tolist(),classes[0].tolist(),frame.shape[0],frame.shape[1])
+			print(f"{len(array_boxes_detected)} human/s detected in frame {frame_count}.")
 			if len(array_boxes_detected)>0:
 				# Both of our lists that will contain the centroïds coordonates and the ground points
 				array_centroids = get_centroids(array_boxes_detected)
@@ -213,7 +214,7 @@ while True:
 						for b_and_c in box_and_centroid:
 							if ccp == b_and_c[0]:
 								boxes_to_make_red.append(b_and_c[1]) 
-					print(boxes_to_make_red)
+					# print(boxes_to_make_red)
 					for i,items in enumerate(boxes_to_make_red):
 						cv2.rectangle(frame,(boxes_to_make_red[i][1],boxes_to_make_red[i][0]),(boxes_to_make_red[i][3],boxes_to_make_red[i][2]),COLOR_RED,2)
 
