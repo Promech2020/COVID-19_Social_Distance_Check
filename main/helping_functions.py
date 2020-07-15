@@ -73,3 +73,51 @@ def combine_image(frame, bird_eye):
 
     return img1
 
+
+def get_human_box_detection(boxes,scores,classes,height,width):
+	""" 
+	For each object detected, check if it is a human and if the confidence >> our threshold.
+	Return 2 coordonates necessary to build the box.
+	@ boxes : all our boxes coordinates
+	@ scores : confidence score on how good the prediction is -> between 0 & 1
+	@ classes : the class of the detected object ( 1 for human )
+	@ height : of the image -> to get the real pixel value
+	@ width : of the image -> to get the real pixel value
+	"""
+	# print(boxes)
+	array_boxes = list() # Create an empty list
+	for i in range(boxes.shape[1]):
+		# If the class of the detected object is 1 and the confidence of the prediction is > 0.75
+		if int(classes[i]) == 1 and scores[i] > 0.75:
+			# Multiply the X coordonnate by the height of the image and the Y coordonate by the width
+			# To transform the box value into pixel coordonate values.
+			box = [boxes[0,i,0],boxes[0,i,1],boxes[0,i,2],boxes[0,i,3]] * np.array([height, width, height, width])
+			# Add the results converted to int
+			array_boxes.append((int(box[0]),int(box[1]),int(box[2]),int(box[3])))
+	return array_boxes
+
+
+def get_centroids(array_boxes_detected):
+	"""
+	For every bounding box, compute the centroid and the point located on the bottom center of the box
+	@ array_boxes_detected : list containing all our bounding boxes 
+	"""
+	array_centroids = [] # Initialize empty centroid.
+	for index,box in enumerate(array_boxes_detected):
+		# Get the centroid
+		centroid = get_points_from_box(box)
+		array_centroids.append(centroid)
+	return array_centroids
+
+
+def get_points_from_box(box):
+	"""
+	Get the center of the bounding.
+	@ param = box : 2 points representing the bounding box
+	@ return = centroid (x1,y1)
+	"""
+	# Center of the box x = (x1+x2)/2 et y = (y1+y2)/2
+	center_x = int(((box[1]+box[3])/2))
+	center_y = int(((box[0]+box[2])/2))
+
+	return (center_x,center_y)
