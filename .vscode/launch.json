@@ -12,7 +12,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "e:/Gopal/DataScience/COVID-19_Social_Distance_Check/src"
+            "cwd": "e:/Gopal/DataScience/COVID-19_Social_Distance_Check/main"
         }
     ]
 }
