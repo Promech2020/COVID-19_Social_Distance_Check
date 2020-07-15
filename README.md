@@ -18,7 +18,6 @@ Or following command should work.
 pip install opencv-python
 ```
 ### Tensorflow
-
 ```
 pip install tensorflow==2.1
 pip install tensorflow-gpu==2.1
@@ -27,20 +26,22 @@ pip install tensorflow-gpu==2.1
 ```
 pip install imutils
 ```
-
 ### Yaml
 ```
 pip install PyYaml
 ```
-
 ### playsound
 ```
 pip install playsound
 ```
-
 ### mutagen
 ```
 pip install mutagen
+```
+### PyQt5 and PyQt5-tools
+```
+pip install pyqt5
+pip install pyqt5-tools
 ```
 
 # Download Tensorflow models
@@ -53,21 +54,23 @@ tar -xvzf faster_rcnn_inception_v2_coco_2018_01_28.tar.gz
 ```
 
 # Run project
-
 ### Start social distancing detection
 Run 
 ```bash
-python social_distanciation_video_detection.py
+python Main_Func.py
 ```
 You will be asked as inputs :
-- The name of the video (default value PETS2009.avi) or "0" for webcam.
-- The distance (in pixels between 2 persons).
+- Browse for input Video or WebCam.
+- The minimum distance to maintain between 2 persons.
 - Time to wait before playing alert sound.
-- Frame per second of your video/cctv footage.
+- Time to wait between playing alert sound.
 
 # Outputs
 Video output will be stored in the output file.
 
-#Upcoming
+# In Progress
 
-GUI to get user input.
+- Relation between minimum distance input, frame size and pixel value. 
+- User input for warning message
+- Detect whether WebCam is connected or not
+- Show output messages in message boxes after completion of job or if some errors occurs.
