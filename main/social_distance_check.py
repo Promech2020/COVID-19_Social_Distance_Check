@@ -28,8 +28,8 @@ audio = MP3(soundfile)
 audio_file_length = audio.info.length
 
 ##Required Variables
-minimum_distance = 0
-waits = 0
+# minimum_distance = 0
+# waits = 0
 
 def check_social_distance(v_path, min_dist, wait_time_before, wait_time_between):
 	model = get_model()
@@ -37,7 +37,7 @@ def check_social_distance(v_path, min_dist, wait_time_before, wait_time_between)
 	minimum_distance = get_minimum_distance(min_dist)
 	seconds = wait_to_play_warning(wait_time_before)
 	waits = wait_between_warning(wait_time_between)
-	start_checking(video_path, model, minimum_distance, seconds)
+	start_checking(video_path, model, minimum_distance, seconds, waits)
 
 
 ######################################### 
@@ -55,7 +55,7 @@ def get_model():
 #########################################
 def select_video(video_name):
 	if video_name == "":
-		video_p="../input_video/VIRAT_S_010204_05_000856_000890.mp4" 
+		video_p="../input_video/PETS2009.avi" 
 	elif video_name == "WebCam":
 		video_p = 0
 	else :
@@ -85,8 +85,8 @@ def wait_between_warning(secs):
 	wait = int(secs.split(" ")[0])
 	return wait
 
-
-def check_current_value(key,value):
+	
+def check_current_value(key,value, minimum_distance):
     if value < float(minimum_distance):
         time.sleep(1)
         timer_for_each_pairs[key] += 1
@@ -98,7 +98,7 @@ time_to_wait = 0
 def play_warning():
 	playsound(soundfile)
 
-def waiting_time():
+def waiting_time(waits, frame_per_seconds):
 	global time_to_wait
 	for i in range(int(audio_file_length)+waits):
 		for j in range(frame_per_seconds*2):
@@ -108,7 +108,7 @@ def waiting_time():
 	time_to_wait=0
 
 
-def start_checking(video_path, model, minimum_distance, seconds):
+def start_checking(video_path, model, minimum_distance, seconds, waits):
 	######################################################
 	# 				START THE VIDEO STREAM               #
 	######################################################
@@ -185,14 +185,14 @@ def start_checking(video_path, model, minimum_distance, seconds):
 						boxes_to_make_red.clear()
 			else:
 				print(f"Something is wrong in frame {frame_count}.")
-		# print(distance_between_pairs)
-		# print(timer_for_each_pairs)
-		# print("\n")
+		print(distance_between_pairs)
+		print(timer_for_each_pairs)
+		print("\n")
 
 		if len(distance_between_pairs)>0:
 			threading1 = []
 			for key,value in distance_between_pairs.items():
-				t1 = threading.Thread(target = check_current_value, args = [key,value])
+				t1 = threading.Thread(target=check_current_value, args=[key,value, minimum_distance])
 				t1.start()
 				threading1.append(t1)
 			for thread1 in threading1:
@@ -202,7 +202,7 @@ def start_checking(video_path, model, minimum_distance, seconds):
 			t_max = max(t)
 			if t_max >= seconds and time_to_wait==0:
 				threading.Thread(target = play_warning).start()
-				threading.Thread(target= waiting_time).start()
+				threading.Thread(target= waiting_time, args=[waits, frame_per_seconds]).start()
 
 			#Update dictionary to remove far away pairs. Check for it in only 10 loop to save computation power.
 			if loop_count >=10:
@@ -216,13 +216,13 @@ def start_checking(video_path, model, minimum_distance, seconds):
 		cv2.imshow("Final View", frame)
 
 		key = cv2.waitKey(1) & 0xFF
+		if video_path != 0:
+			if output_video_1 is None:
+				fourcc1 = cv2.VideoWriter_fourcc(*"MJPG")
+				output_video_1 = cv2.VideoWriter("../output_video/video.avi", fourcc1, 25,(frame.shape[1], frame.shape[0]), True)
+			elif output_video_1 is not None:
+				output_video_1.write(frame)
 
-		if output_video_1 is None:
-			fourcc1 = cv2.VideoWriter_fourcc(*"MJPG")
-			output_video_1 = cv2.VideoWriter("../output_video/video.avi", fourcc1, 25,(frame.shape[1], frame.shape[0]), True)
-		elif output_video_1 is not None:
-			output_video_1.write(frame)
-
-		# Break the loop
-		if key == ord("q"):
-			break
+			# Break the loop
+			if key == ord("q"):
+				break
