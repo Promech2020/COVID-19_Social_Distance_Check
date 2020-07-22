@@ -45,6 +45,11 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     # return the resized image
     return resized
 
+def rescale_image(image, percent):
+    width = int(image.shape[1]*percent/100)
+    height = int(image.shape[0]*percent/100)
+    dim = (width, height)
+    return cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
 
 def combine_image(frame, bird_eye):
     # Load two images
