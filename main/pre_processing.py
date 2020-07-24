@@ -11,7 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def check_social_distance(v_path, min_dist, wait_time_before, wait_time_between, out_frame, a_path, cam_distance):
 	start = time.time()
 	video_path = select_video(v_path)
-	minimum_distance = get_minimum_distance(min_dist, cam_distance)
+	minimum_distance = get_minimum_distance(min_dist, cam_distance, out_frame)
 	seconds = wait_to_play_warning(wait_time_before)
 	waits = wait_between_warning(wait_time_between)
 	frame_size = refine_frame_size(out_frame)
@@ -31,7 +31,7 @@ def check_social_distance(v_path, min_dist, wait_time_before, wait_time_between,
 #########################################
 def select_video(video_name):
 	if video_name == "":
-		video_p="../input_video/PETS2009.avi" 
+		video_p="../input_video/PETS2009_5S.avi" 
 	elif video_name == "WebCam":
 		video_p = 0
 	else :
@@ -41,8 +41,10 @@ def select_video(video_name):
 ######################################### 
 #		    Minimal distance			#
 #########################################
-def get_minimum_distance(min, dist):
-	minimum = int(min.split(" ")[0])*dist*10
+def get_minimum_distance(min, dist, fs):
+	min_value = float(min.split(" ")[0])
+	frame_w = int(fs.split(" ")[0])/100
+	minimum = min_value*int(dist)* frame_w
 	return minimum
 
 ######################################### 

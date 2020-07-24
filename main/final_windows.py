@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 import cv2
 
 class Final(QWidget):
@@ -15,6 +15,7 @@ class Final(QWidget):
         self.height = 200
         self.message = message
         self.finalUI()
+        self.setAttribute(Qt.WA_DeleteOnClose)
         
         
     def finalUI(self):

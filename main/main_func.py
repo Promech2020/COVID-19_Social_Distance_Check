@@ -27,6 +27,7 @@ time_to_wait = 0
 
 
 def start_checking(start_time, video_path, minimum_distance, seconds, waits, frame_width, audio_path, audio_length, camera_target, model):
+	# event = threading.Event()
 	good_to_run = False
 	good_to_write = True
 	output_video_1 = None
@@ -38,73 +39,96 @@ def start_checking(start_time, video_path, minimum_distance, seconds, waits, fra
 	if video_path.startswith("http"):
 		try:
 			vs = CamGear(source=video_path, y_tube =True,  time_delay=1, logging=True).start() 
+			# event.set()
 			frame_per_seconds = 30
 			good_to_run = True
 			good_to_write = True
+			
 		except:
+			# event.clear()
 			good_to_run = False
 			good_to_write = False
 			end = time.time()
 			time_elapsed = int(end - start_time)
-			Final("Youtube Video Load Failed",f"Time consumed: {time_elapsed} \n Online video link stopped working.")
+			print(f"Time consumed: {time_elapsed} seconds.")
+			print("Youtube Video Load Failed. Online video link stopped working.")
+			# Final("Youtube Video Load Failed.",f"Time consumed: {time_elapsed} seconds. \n Online video link stopped working.")
 			
 	elif video_path == 0:
 		try:
+			# event.set()
 			vs = cv2.VideoCapture(0)
 			frame_per_seconds = int(vs.get(cv2.CAP_PROP_FPS))
 			good_to_run = True
 			good_to_write = True
 		except:
+			# event.clear()
 			good_to_run = False
 			good_to_write = False
 			end = time.time()
 			time_elapsed = int(end - start_time)
-			Final("WebCam Failed", f"Time consumed: {time_elapsed} \n Webcam not connected." )
+			# Final("WebCam Failed", f"Time consumed: {time_elapsed} \n Webcam not connected." )
 			
 	else:	
 		try:
+			# event.set()
 			vs = cv2.VideoCapture(video_path)
 			frame_per_seconds = int(vs.get(cv2.CAP_PROP_FPS))
 			good_to_run = True
 			good_to_write = True
 		except:
+			# event.clear()
 			good_to_run = False
 			good_to_write = False
 			end = time.time()
 			time_elapsed = int(end - start_time)
-			Final("Video Load Failed", f"Time consumed: {time_elapsed} \n Webcam not connected." )
+			print(f"Time consumed: {time_elapsed} seconds.")
+			print("Webcam not connected.")
+			os._exit(0)
+			# Final("Video Load Failed", f"Time consumed: {time_elapsed} seconds. \n Something wrong in videopath provided." )
 
 	# Loop until the end of the video stream
 	while True and good_to_run == True:	
 		if video_path.startswith("http"):
 			try:
 				frame = vs.read()
+				# event.set()
 				good_to_run = True
 				good_to_write = True
 			except:
+				# event.clear()
 				good_to_run = False
 				good_to_write = False
 				end = time.time()
 				time_elapsed = int(end - start_time)
-				Final("Youtube Video Read Failed",f"Time consumed: {time_elapsed} \n Online video link stopped working.")
+				print(f"Time consumed: {time_elapsed} seconds.")
+				print("Online video link stopped working.")
+				os._exit(0)
+				# Final("Youtube Video Read Failed",f"Time consumed: {time_elapsed} seconds. \n Online video link stopped working.")
 		else:
 			try:
 				(frame_exist, frame) = vs.read()
+				# event.set()
 				good_to_run = True
 				good_to_write = True
 			except:
+				# event.clear()
 				good_to_run = False
 				good_to_write = False
 				end = time.time()
 				time_elapsed = int(end - start_time)
-				Final("Youtube Video Read Failed",f"Time consumed: {time_elapsed} \n Online video link stopped working.")
+				print(f"Time consumed: {time_elapsed} seconds.")
+				print("Could not get frames from video.")
+				os._exit(0)
+				# Final("Video load Failed.",f"Time consumed: {time_elapsed} seconds. \n Could not get frames from video.")
 			
 
 		if frame is None:
-			good_to_run = False
-			good_to_write = False
 			break
 		else:
+			# event.set()
+			good_to_run = True
+			good_to_write = True
 			# frame_count += 1
 			# Resize the image to the correct size
 			frame = image_resize(frame, width = frame_width)
@@ -172,7 +196,7 @@ def start_checking(start_time, video_path, minimum_distance, seconds, waits, fra
 		if len(distance_between_pairs)>0:
 			threading1 = []
 			for key,value in distance_between_pairs.items():
-				t1 = threading.Thread(target=check_current_value, args=[key,value, minimum_distance])
+				t1 = threading.Thread(target=check_current_value, args=[key,value, minimum_distance], daemon = True)
 				t1.start()
 				threading1.append(t1)
 			for thread1 in threading1:
@@ -181,8 +205,8 @@ def start_checking(start_time, video_path, minimum_distance, seconds, waits, fra
 			t = timer_for_each_pairs.values()
 			t_max = max(t)
 			if t_max >= seconds and time_to_wait==0:
-				threading.Thread(target = play_warning, args = [start_time, audio_path, frame_per_seconds]).start()
-				threading.Thread(target= waiting_time, args=[audio_length, waits, frame_per_seconds]).start()
+				threading.Thread(target = play_warning, args = [start_time, audio_path, frame_per_seconds], daemon = True).start()
+				threading.Thread(target= waiting_time, args=[audio_length, waits, frame_per_seconds], daemon = True).start()
 
 			#Update dictionary to remove far away pairs. Check for it in only 10 loop to save computation power.
 			if loop_count >=10:
@@ -210,10 +234,17 @@ def start_checking(start_time, video_path, minimum_distance, seconds, waits, fra
 				break
 
 	if video_path != 0 and good_to_write == True:
+		# while cv2.getWindowProperty('Output', cv2.WND_PROP_VISIBLE)==1.0:
+		# 	cv2.destroyWindow("Output")
 		end = time.time()
-		time_elapsed = int(start_time-end)
-		# Ui_MainWindow.success_box(f"Time elapsed: {time_elapsed} \n Successful execution. Video saved in output_video folder.")
-		Final("Success", f"Time elapsed: {time_elapsed} \n Successful execution. Video saved in output_video folder.")
+		time.sleep(1)
+		time_elapsed = int(end -  start_time)
+		print(f"Time consumed: {time_elapsed} seconds.")
+		print("Successful execution. Video saved in output_folder.")
+		os._exit(0)
+		# Final("Success", f"Time consumed: {time_elapsed} seconds \n Successful execution. Video saved in output_video folder.")
+	# complete_msg(video_path, good_to_write, start_time, frame_per_seconds)
+
 
 
 def check_current_value(key,value, minimum_distance):
@@ -226,18 +257,32 @@ def check_current_value(key,value, minimum_distance):
 def play_warning(start_time, soundfile, fps):
 	try:    
 		playsound(soundfile)
+		# eve.set()
 		good_to_run = True
 		good_to_write = True
 	except:
+		# eve.clear()
 		good_to_run = False
 		good_to_write = False
 		end = time.time()
 		time_elapsed = int(end - start_time)
-		threading.Thread(target = close_cv2, args = [fps]).start()
-		Final("Playing Alert Message Failed", f"Time elapshed: {time_elapsed} \n Could not play the sound.")
-		# threading.Thread(target = Final, args = ["Warning Play Failed", f"Time elapshed: {time_elapsed} \n Could not play the sound."]).start()
-		sys.exit(0)
+		# print(threading.enumerate())
+		# os._exit(0)
+		# t1.stop()
+		# print(threading.enumerate())
+		# threading.Thread(target = close_cv2, args = [fps]).start()
+		# Final("Playing Alert Message Failed", f"Time consumed: {time_elapsed} \n Could not play the sound.")
+		# t_stop = threading.Thread(target = exit_all, daemon = True)
+		# t_msg = threading.Thread(target = Final, args = ["Warning Play Failed", f"Time consumed: {time_elapsed} \n Could not play the sound."], daemon = True)
+		# t_stop.start()
+		# t_msg.start()
+		print(f"Time consumed: {time_elapsed} seconds.")
+		print("Could not play the sound.")
+		os._exit(0)
 	
+# def exit_all():
+# 	os._exit(0)
+
 def waiting_time(audio, waits, frame_per_seconds):
 	global time_to_wait
 	for i in range(int(audio)+waits):
@@ -247,10 +292,22 @@ def waiting_time(audio, waits, frame_per_seconds):
 			time_to_wait += to_sleep
 	time_to_wait=0
 
-def close_cv2(frames_seconds):
-	for i in range(frames_seconds):
-		current_state = cv2.getWindowProperty('Output', cv2.WND_PROP_VISIBLE)
-		if current_state == 1.0:
-			cv2.destroyWindow("Output")
-		else:
-			time.sleep(0.5)
+# def close_cv2(frames_seconds):
+# 	for i in range(frames_seconds):
+# 		current_state = cv2.getWindowProperty('Output', cv2.WND_PROP_VISIBLE)
+# 		if current_state == 1.0:
+# 			cv2.destroyWindow("Output")
+# 		else:
+# 			time.sleep(0.5)
+# def close_background():
+# 	while cv2.getWindowProperty('Output', cv2.WND_PROP_VISIBLE)==1.0:
+# 		cv2.destroyWindow("Output")
+
+# def complete_msg(vp, gtw, start, fps):
+# 	if vp != 0 and gtw == True:
+# 		while cv2.getWindowProperty('Output', cv2.WND_PROP_VISIBLE)==1.0:
+# 			cv2.destroyWindow("Output")
+# 		end = time.time()
+# 		time.sleep(1)
+# 		time_elapsed = int(end -  start)
+# 		Final("Success", f"Time consumed: {time_elapsed} seconds. \n Successful execution. Video saved in output_video folder.")
