@@ -2,6 +2,8 @@ from helping_functions import image_resize, create_blank, get_human_box_detectio
 from final_windows import Final
 from vidgear.gears import CamGear
 from playsound import playsound
+import sounddevice as sd
+import soundfile as sf
 import numpy as np
 import itertools
 import threading
@@ -26,7 +28,8 @@ time_to_wait = 0
 
 
 
-def start_checking(start_time, video_path, minimum_distance, seconds, waits, frame_width, audio_path, audio_length, camera_target, model):
+# def start_checking(start_time, video_path, minimum_distance, seconds, waits, frame_width, audio_path, audio_length, camera_target, model):
+def start_checking(start_time, video_path, minimum_distance, seconds, waits, frame_width, audio_path, camera_target, model):
 	# event = threading.Event()
 	good_to_run = False
 	good_to_write = True
@@ -206,8 +209,8 @@ def start_checking(start_time, video_path, minimum_distance, seconds, waits, fra
 			t_max = max(t)
 			if t_max >= seconds and time_to_wait==0:
 				threading.Thread(target = play_warning, args = [start_time, audio_path, frame_per_seconds], daemon = True).start()
-				threading.Thread(target= waiting_time, args=[audio_length, waits, frame_per_seconds], daemon = True).start()
-
+				# threading.Thread(target= waiting_time, args=[audio_length, waits, frame_per_seconds], daemon = True).start()
+				threading.Thread(target= waiting_time, args=[waits, frame_per_seconds], daemon = True).start()
 			#Update dictionary to remove far away pairs. Check for it in only 10 loop to save computation power.
 			if loop_count >=10:
 				for k,v in distance_between_pairs.items():
@@ -256,7 +259,12 @@ def check_current_value(key,value, minimum_distance):
 
 def play_warning(start_time, soundfile, fps):
 	try:    
-		playsound(soundfile)
+		# filename = 'myfile.wav'
+		# Extract data and sampling rate from file
+		data, fs = sf.read(soundfile, dtype='float32')
+		sd.play(data, fs)
+		status = sd.wait()
+		# playsound(soundfile)
 		# eve.set()
 		good_to_run = True
 		good_to_write = True
@@ -283,9 +291,11 @@ def play_warning(start_time, soundfile, fps):
 # def exit_all():
 # 	os._exit(0)
 
-def waiting_time(audio, waits, frame_per_seconds):
+# def waiting_time(audio, waits, frame_per_seconds):
+def waiting_time(waits, frame_per_seconds):
 	global time_to_wait
-	for i in range(int(audio)+waits):
+	# for i in range(int(audio)+waits):
+	for i in range(waits):
 		for j in range(frame_per_seconds*2):
 			to_sleep = 1/(frame_per_seconds*2)
 			time.sleep(to_sleep)

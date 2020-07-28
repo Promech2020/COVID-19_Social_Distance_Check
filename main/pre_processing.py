@@ -16,12 +16,13 @@ def check_social_distance(v_path, min_dist, wait_time_before, wait_time_between,
 	waits = wait_between_warning(wait_time_between)
 	frame_size = refine_frame_size(out_frame)
 	soundfile = select_audio(a_path)
-	#Get length of audio file
-	audio = MP3(soundfile)
-	audio_file_length = audio.info.length
+	# #Get length of audio file
+	# audio = MP3(soundfile)
+	# audio_file_length = audio.info.length
 	target_distance = get_target_distance(cam_distance)
 	model = get_model()
-	start_checking(start, video_path, minimum_distance, seconds, waits, frame_size, soundfile, audio_file_length, target_distance, model)
+	# start_checking(start, video_path, minimum_distance, seconds, waits, frame_size, soundfile, audio_file_length, target_distance, model)
+	start_checking(start, video_path, minimum_distance, seconds, waits, frame_size, soundfile, target_distance, model)
 	end = time.time()
 	print(f"Runtime of the program is {end - start}")
 
@@ -77,7 +78,7 @@ def refine_frame_size(size):
 def select_audio(audio):
 	#Take input for how many seconds do you want to wait after playing warning.
 	if audio == "":
-		sound = "../sound/covid_message.mp3"
+		sound = "../sound/covid_message.wav"
 	else:
 		sound = audio
 	return sound
