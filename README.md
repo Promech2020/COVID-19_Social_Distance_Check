@@ -32,16 +32,17 @@ pip install PyYaml
 ```
 ### playsound
 ```
-pip install playsound
-```
-### mutagen
-```
-pip install mutagen
+pip install soundfile
+conda install -c conda-forge python-sounddevice
 ```
 ### PyQt5 and PyQt5-tools
 ```
 pip install pyqt5
 pip install pyqt5-tools
+```
+### VidGear
+```
+pip install vidgear
 ```
 
 # Download Tensorflow models
