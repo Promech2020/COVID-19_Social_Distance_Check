@@ -19,7 +19,6 @@ pip install opencv-python
 ```
 ### Tensorflow
 ```
-pip install tensorflow==2.1
 pip install tensorflow-gpu==2.1
 ```
 ### imutils
@@ -38,7 +37,6 @@ conda install -c conda-forge python-sounddevice
 ### PyQt5 and PyQt5-tools
 ```
 pip install pyqt5
-pip install pyqt5-tools
 ```
 ### VidGear
 ```
@@ -58,13 +56,17 @@ tar -xvzf faster_rcnn_inception_v2_coco_2018_01_28.tar.gz
 ### Start social distancing detection
 Run 
 ```bash
-python Main_Func.py
+python Social_Distance_Check.py
 ```
 You will be asked as inputs :
-- Browse for input Video or WebCam.
+- Browse for input Video or WebCam or provide online video link.
 - The minimum distance to maintain between 2 persons.
 - Time to wait before playing alert sound.
 - Time to wait between playing alert sound.
+- Output frame size.
+- Audio file(.wav format) to play as warning.
+
+* Note: If you did not provide any information. It will run with defaults. *
 
 # Outputs
 Video output will be stored in the output file.
@@ -72,6 +74,6 @@ Video output will be stored in the output file.
 # In Progress
 
 - Relation between minimum distance input, frame size and pixel value. 
-- User input for warning message
-- Detect whether WebCam is connected or not
+- User input for warning message.
+- Detect whether WebCam is connected or not.
 - Show output messages in message boxes after completion of job or if some errors occurs.
